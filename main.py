@@ -12,8 +12,6 @@ def main():
     parser.add_argument("-n", "--num-files", default=-1, type=int)
     args = parser.parse_args()
 
-    print("NUM FILES: ", args.num_files)
-
     tournament = args.tournament
     
 
