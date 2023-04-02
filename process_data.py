@@ -27,7 +27,7 @@ def build_people_registry(tournament: str):
 
     os.chdir(cwd)
 
-def build_all_data(files_path: str, n: int):
+def build_all_data(tournament:str, files_path: str, n: int):
     ball_by_ball_data = pd.DataFrame()
     matches_data = pd.DataFrame()
 
@@ -55,10 +55,10 @@ def build_all_data(files_path: str, n: int):
         matches_data = pd.concat([matches_data, match_data], ignore_index=True)
     
     ball_by_ball_data = ball_by_ball_data.sort_values(by = ['season', 'match_no', 'innings', 'over', 'delivery'])
-    ball_by_ball_data.to_csv('ball_by_ball.csv', index=False)
+    ball_by_ball_data.to_csv(os.path.join(tournament, 'ball_by_ball.csv'), index=False)
 
     matches_data = matches_data.sort_values(by = ['season', 'match_no'])
-    matches_data.to_csv('matches.csv', index=False)
+    matches_data.to_csv(os.path.join(tournament, 'matches.csv'), index=False)
 
 def build_match_data(json_data: dict, counter: int) -> pd.DataFrame:
     season = json_data['info']['dates'][0].split('-')[0]

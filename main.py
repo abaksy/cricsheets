@@ -28,7 +28,7 @@ def main():
         process_data.build_people_registry(tournament)
 
     if build_data:
-        process_data.build_all_data(f"{tournament}/", args.num_files)
+        process_data.build_all_data(tournament, f"{tournament}/", args.num_files)
         
 
 if __name__ == "__main__":
