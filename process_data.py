@@ -3,7 +3,7 @@ import json
 import pandas as pd
 import re
 
-def build_people_registry(tournament):
+def build_people_registry(tournament: str):
     people = dict()
     cwd = os.getcwd()
     os.chdir(tournament)
