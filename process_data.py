@@ -1,33 +1,47 @@
 import os
 import json
 import pandas as pd
+import logging
 import re
 
-def build_people_registry(tournament: str):
+
+def build_people_registry(tournament: str, logger: logging.Logger):
+    '''
+    Build list of players and their corresponding unique IDs
+    ''', 
     people = dict()
     cwd = os.getcwd()
     os.chdir(tournament)
-
-    os.remove('people.json')
+    
+    if os.path.exists("people.json"):
+        logger.info("Removing existing people data")
+        os.remove('people.json')
 
     json_files = list(filter(lambda x: x.endswith(".json"), os.listdir()))
 
     for file in json_files:
-        print(f"Reading file {file}")
+        logging.info(f"Reading file {file}")
         with open(file) as f:
             data = json.loads(f.read())
         registry = data['info']['registry']['people']
         people.update(registry)
     
-    print(len(people))
+    logging.info(f"Found {len(people)} players!")
 
     content = json.dumps(people, indent=2)
     with open("people.json", 'w') as f:
         f.write(content)
-
+    logging.info("Successfully built people registry!")
     os.chdir(cwd)
 
-def build_all_data(tournament:str, files_path: str, n: int):
+def build_all_data(tournament:str, files_path: str, n: int, logger: logging.Logger):
+    '''
+    Build ball-by-ball details and match details CSV files for all games\n
+    Specify number of matches using 'n'
+    '''
+    if not os.path.exists(files_path):
+        logging.error("Provided path for data does not exist! Please download the data first")
+        exit(1)
     ball_by_ball_data = pd.DataFrame()
     matches_data = pd.DataFrame()
 
@@ -35,11 +49,11 @@ def build_all_data(tournament:str, files_path: str, n: int):
     data_files = [x for x in os.listdir(files_path) if re.match('\d+.json', x) is not None]
     data_files = sorted(data_files, key = lambda x: int(x.split('.')[0]))
     if n is not None and n > -1:
-        data_files = data_files[:n]
+        data_files = data_files[:n+1]
     total_files = len(data_files)
     for file_no, file in enumerate(data_files):
         if (file_no + 1) % 50 == 0:
-            print(f"Read file: {file_no + 1} out of {total_files} files...")
+            logging.info(f"Read file: {file_no + 1} out of {total_files} files...")
         with open(os.path.join(files_path, file)) as f:
             content = f.read()
             json_data = json.loads(content)
@@ -56,11 +70,16 @@ def build_all_data(tournament:str, files_path: str, n: int):
     
     ball_by_ball_data = ball_by_ball_data.sort_values(by = ['season', 'match_no', 'innings', 'over', 'delivery'])
     ball_by_ball_data.to_csv(os.path.join(tournament, 'ball_by_ball.csv'), index=False)
+    logging.info(f"Finished building ball-by-ball data for {total_files} matches")
 
     matches_data = matches_data.sort_values(by = ['season', 'match_no'])
     matches_data.to_csv(os.path.join(tournament, 'matches.csv'), index=False)
+    logging.info(f"Finished building match data for {total_files} matches")
 
 def build_match_data(json_data: dict, counter: int) -> pd.DataFrame:
+    '''
+    Return match data for a single match
+    '''
     season = json_data['info']['dates'][0].split('-')[0]
     match_data = {
                 'season': season, 
@@ -102,6 +121,9 @@ def build_match_data(json_data: dict, counter: int) -> pd.DataFrame:
 
 
 def build_match_data_ball_by_ball(json_data: dict, counter: int) -> pd.DataFrame:
+    '''
+    Build ball by ball data for a single match
+    '''
     ball_by_ball_data = pd.DataFrame()
 
     date = json_data['info']['dates'][0]
