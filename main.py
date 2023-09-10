@@ -24,7 +24,7 @@ def main():
     logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--tournament", type=str)
+    parser.add_argument("-t", "--tournament", type=str, choices=['IPL', 'ODI', 'Test', 'T20I'])
     parser.add_argument("-p", "--people-registry", default=False, action="store_true")
     parser.add_argument("-d", "--download-files", default=False, action="store_true")
     parser.add_argument("-b", "--build-data", default=False, action="store_true")

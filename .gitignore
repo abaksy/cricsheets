@@ -131,6 +131,8 @@ dmypy.json
 # Tournament files
 IPL/
 ODI/
+T20I/
+Test/
 
 # Log files
 .cricsheet_log
